@@ -1,4 +1,6 @@
-﻿namespace Task3;
+﻿using System.Linq;
+
+namespace Task3;
 
 public class Program
 {
@@ -12,10 +14,12 @@ public class Program
         Console.WriteLine("****** Question 1 ******");
         Console.WriteLine("Provided:");
 
+        // customers that have a card
+        var cardOwners = database.LoyaltyCards.Select(lc => lc.CustomerId);
+
         var noCard =
             from c in database.Customers
-            join lc in database.LoyaltyCards on c.CustomerId equals lc.CustomerId into cards
-            where cards.Count() == 0
+            where !cardOwners.Contains(c.CustomerId)
             orderby c.LastName, c.FirstName
             select c;
 
@@ -39,11 +43,18 @@ public class Program
 
         const int referenceYear = 2020;
 
+        // e.g. 85031512345 -> 1985, 02231512345 -> 2002
+        static int BirthYear(string pesel)
+        {
+            int yy = int.Parse(pesel.Substring(0, 2));
+            int mm = int.Parse(pesel.Substring(2, 2));
+            // month > 20 means born after 2000
+            return (mm > 20 ? 2000 : 1900) + yy;
+        }
+
         var olderThan29 =
             from c in database.Customers
-            let yy = int.Parse(c.PESEL.Substring(0, 2))
-            let mm = int.Parse(c.PESEL.Substring(2, 2))
-            let birthYear = (mm > 20 ? 2000 : 1900) + yy
+            let birthYear = BirthYear(c.PESEL)
             let age = referenceYear - birthYear
             where age > 29
             orderby birthYear
@@ -66,13 +77,18 @@ public class Program
         Console.WriteLine("****** Question 3 ******");
         Console.WriteLine("Provided:");
 
+        // first order date per customer
+        // (people without orders just don't show up here)
+        var firstOrders =
+            from o in database.Orders
+            group o.Date by o.CustomerId into g
+            select new { CustomerId = g.Key, FirstOrder = g.Min() };
+
         var longest =
-            (from c in database.Customers
-             join o in database.Orders on c.CustomerId equals o.CustomerId into orders
-             where orders.Any()
-             let firstOrder = orders.Min(o => o.Date)
-             orderby firstOrder
-             select new { Customer = c, FirstOrder = firstOrder })
+            (from f in firstOrders
+             join c in database.Customers on f.CustomerId equals c.CustomerId
+             orderby f.FirstOrder
+             select new { Customer = c, f.FirstOrder })
             .Take(3);
 
         foreach (var x in longest)
@@ -96,7 +112,7 @@ public class Program
              join p in database.Products on op.ProductId equals p.ProductId
              group op.Quantity by p.Name into g
              let total = g.Sum(q => (long)q)
-             orderby total descending, g.Key
+             orderby total descending, g.Key   // name as tiebreaker
              select new { Name = g.Key, Total = total })
             .Take(5);
 
@@ -120,16 +136,28 @@ public class Program
         Console.WriteLine("****** Question 5 ******");
         Console.WriteLine("Provided:");
 
+        var orderLines =
+            from o in database.Orders
+            join op in database.OrderProducts on o.OrderId equals op.OrderId
+            join p in database.Products on op.ProductId equals p.ProductId
+            select new { o.CustomerId, Value = p.Price * op.Quantity };
+
+        // sum per customer
+        var totals =
+            (from line in orderLines
+             group line.Value by line.CustomerId into g
+             select new { CustomerId = g.Key, Total = g.Sum() })
+            .ToDictionary(t => t.CustomerId, t => t.Total);
+
         var spending =
             from c in database.Customers
-            join lc in database.LoyaltyCards on c.CustomerId equals lc.CustomerId into cards
-            from card in cards.DefaultIfEmpty()
-            let discount = card == null ? 0.0 : card.Discount
-            let total = (from o in database.Orders
-                         where o.CustomerId == c.CustomerId
-                         join op in database.OrderProducts on o.OrderId equals op.OrderId
-                         join p in database.Products on op.ProductId equals p.ProductId
-                         select p.Price * op.Quantity).Sum()
+                // no orders -> not in dict -> 0
+            let total = totals.GetValueOrDefault(c.CustomerId)
+            // no card -> FirstOrDefault gives 0, so no discount
+            let discount = database.LoyaltyCards
+                                   .Where(lc => lc.CustomerId == c.CustomerId)
+                                   .Select(lc => lc.Discount)
+                                   .FirstOrDefault()
             orderby c.LastName, c.FirstName
             select new { Customer = c, Spent = Math.Round(total * (1 - discount), 2) };
 
