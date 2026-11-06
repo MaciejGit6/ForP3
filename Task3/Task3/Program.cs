@@ -1,0 +1,139 @@
+﻿namespace Task3;
+
+public class Program
+{
+    public static void Main(string[] args)
+    {
+        Database database = Database.GetInstance();
+
+        // 1.
+        Console.WriteLine("****** Question 1 ******");
+        Console.WriteLine("Provided:");
+
+        var noCard =
+            from c in database.Customers
+            join lc in database.LoyaltyCards on c.CustomerId equals lc.CustomerId into cards
+            where cards.Count() == 0
+            orderby c.LastName, c.FirstName
+            select c;
+
+        foreach (var c in noCard)
+            Console.WriteLine(c.LastName + " " + c.FirstName);
+
+        Console.WriteLine();
+        Console.WriteLine("Expected:");
+        Console.WriteLine("Bąk Magdalena");
+        Console.WriteLine("Bąk Marek");
+        Console.WriteLine("Wiśniewski Artur");
+
+        // 2.
+        Console.WriteLine();
+        Console.WriteLine("****** Question 2 ******");
+        Console.WriteLine("Provided:");
+
+        const int referenceYear = 2020;
+
+        var olderThan29 =
+            from c in database.Customers
+            let yy = int.Parse(c.PESEL.Substring(0, 2))
+            let mm = int.Parse(c.PESEL.Substring(2, 2))
+            let birthYear = (mm > 20 ? 2000 : 1900) + yy
+            let age = referenceYear - birthYear
+            where age > 29
+            orderby birthYear
+            select new { Customer = c, Age = age };
+
+        foreach (var x in olderThan29)
+            Console.WriteLine(x.Customer.LastName + " " + x.Customer.FirstName + " " + x.Age);
+
+        Console.WriteLine();
+        Console.WriteLine("Expected:");
+        Console.WriteLine("Kowalski Jan 117");
+        Console.WriteLine("Marciniak Jerzy 35");
+        Console.WriteLine("Antoniewski Michał 32");
+
+        // 3.
+        Console.WriteLine();
+        Console.WriteLine("****** Question 3 ******");
+        Console.WriteLine("Provided:");
+
+        var longest =
+            (from c in database.Customers
+             join o in database.Orders on c.CustomerId equals o.CustomerId into orders
+             where orders.Any()
+             let firstOrder = orders.Min(o => o.Date)
+             orderby firstOrder
+             select new { Customer = c, FirstOrder = firstOrder })
+            .Take(3);
+
+        foreach (var x in longest)
+            Console.WriteLine(x.Customer.LastName + " " + x.Customer.FirstName + " " + x.FirstOrder.ToString("dd.MM.yyyy"));
+
+        Console.WriteLine();
+        Console.WriteLine("Expected:");
+        Console.WriteLine("Nowak Andrzej 02.01.2017");
+        Console.WriteLine("Antoniewski Michał 22.03.2017");
+        Console.WriteLine("Kowalska Aneta 12.03.2018");
+
+        // 4.
+        Console.WriteLine();
+        Console.WriteLine("****** Question 4 ******");
+        Console.WriteLine("Provided:");
+
+        var topProducts =
+            (from op in database.OrderProducts
+             join p in database.Products on op.ProductId equals p.ProductId
+             group op.Quantity by p.Name into g
+             let total = g.Sum(q => (long)q)
+             orderby total descending, g.Key
+             select new { Name = g.Key, Total = total })
+            .Take(5);
+
+        foreach (var x in topProducts)
+            Console.WriteLine(x.Name + " " + x.Total);
+
+        Console.WriteLine();
+        Console.WriteLine("Expected:");
+        Console.WriteLine("Gaming chair 21");
+        Console.WriteLine("Marker 11");
+        Console.WriteLine("CD 10");
+        Console.WriteLine("Pen 10");
+        Console.WriteLine("Monitor 5");
+
+        // 5.
+        Console.WriteLine();
+        Console.WriteLine("****** Question 5 ******");
+        Console.WriteLine("Provided:");
+
+        var spending =
+            from c in database.Customers
+            join lc in database.LoyaltyCards on c.CustomerId equals lc.CustomerId into cards
+            from card in cards.DefaultIfEmpty()
+            let discount = card == null ? 0.0 : card.Discount
+            let total = (from o in database.Orders
+                         where o.CustomerId == c.CustomerId
+                         join op in database.OrderProducts on o.OrderId equals op.OrderId
+                         join p in database.Products on op.ProductId equals p.ProductId
+                         select p.Price * op.Quantity).Sum()
+            orderby c.LastName, c.FirstName
+            select new { Customer = c, Spent = Math.Round(total * (1 - discount), 2) };
+
+        foreach (var x in spending)
+            Console.WriteLine(x.Customer.LastName + " " + x.Customer.FirstName + " " + x.Spent);
+
+        Console.WriteLine();
+        Console.WriteLine("Expected:");
+        Console.WriteLine("Antoniewski Michał 1053");
+        Console.WriteLine("Bąk Magdalena 2912");
+        Console.WriteLine("Bąk Marek 3000");
+        Console.WriteLine("Czerwińska Justyna 2593,5");
+        Console.WriteLine("Kowalska Aneta 212,5");
+        Console.WriteLine("Kowalski Jan 3654");
+        Console.WriteLine("Marciniak Jerzy 13600");
+        Console.WriteLine("Nowak Alina 1400");
+        Console.WriteLine("Nowak Andrzej 2550");
+        Console.WriteLine("Wiśniewski Artur 2025");
+
+        Console.WriteLine();
+    }
+}
