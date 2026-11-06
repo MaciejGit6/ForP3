@@ -13,6 +13,7 @@ public class Program
             "..\\..\\..\\ratings.csv");
 
         // Question 1
+        // Count how many users are in the given age groups, sort (ascending) by age.
         Console.WriteLine("Expected:");
         Console.WriteLine($"--------------");
         Console.WriteLine("1 222\r\n18 1103\r\n25 2096\r\n35 1193\r\n45 550\r\n50 496\r\n56 380");
@@ -33,6 +34,7 @@ public class Program
         Console.WriteLine($"--------------");
 
         // Question 2
+        // What is the earliest year of a watched movie in the individual groups determined by age and gender — sort the results ascending by the earliest year.
         Console.WriteLine("Expected:");
         Console.WriteLine($"--------------");
         Console.WriteLine("50 F  - 1919\r\n25 M  - 1919\r\n35 F  - 1919\r\n18 M  - 1919\r\n35 M  - 1919\r\n25 F  - 1919\r\n45 M  - 1919\r\n" +
@@ -57,6 +59,8 @@ public class Program
         Console.WriteLine($"--------------");
 
         // Question 3
+        // Count the number of occurrences of each movie genre. Each genre is counted separately,
+        // so for "Horror|Comedy" we have +1 for the Horror genre and +1 for the Comedy genre. Sort ascending by genre.
         Console.WriteLine("Expected:");
         Console.WriteLine($"--------------");
         Console.WriteLine("Action 503\r\nAdventure 283\r\nAnimation 105\r\nChildren's 251\r\nComedy 1200\r\nCrime 211\r\nDocumentary 127\r\n" +
@@ -79,6 +83,9 @@ public class Program
         Console.WriteLine($"--------------");
 
         // Question 4
+        // We define remakes of a single movie as the set of movies whose title is the same, but the production years are different.
+        // Your result should contain all movies that are remakes (all movies for which we can find at least one other movie with the same title).
+        // The result should be sorted ascending by production year and contain only the first 14 movies.
         Console.WriteLine("Expected:");
         Console.WriteLine($"--------------");
         Console.WriteLine("915 Sabrina 1954 Comedy|Romance\r\n7 Sabrina 1995 Comedy|Romance\r\n2848 Othello 1952 Drama\r\n26 Othello 1995 Drama\r\n" +
@@ -104,6 +111,8 @@ public class Program
         Console.WriteLine($"--------------");
 
         // Question 5
+        // Sort (descending) the movies by the average rating of votes.
+        // Take into account only movies that have received at least 100 votes. The result should contain just the first 20 movies.
         Console.WriteLine("Expected:");
         Console.WriteLine($"--------------");
         Console.WriteLine("Seven Samurai (The Magnificent Seven) (Shichinin no samurai) 4,56\r\nShawshank Redemption, The 4,55\r\nGodfather, The 4,52\r\n" +

@@ -6,7 +6,9 @@ public class Program
     {
         Database database = Database.GetInstance();
 
-        // 1.
+        // Question 1
+        // List all customers who do not have a loyalty card.
+        // Sort ascending by last name, then by first name.
         Console.WriteLine("****** Question 1 ******");
         Console.WriteLine("Provided:");
 
@@ -26,7 +28,11 @@ public class Program
         Console.WriteLine("Bąk Marek");
         Console.WriteLine("Wiśniewski Artur");
 
-        // 2.
+        // Question 2
+        // Find customers older than 29 years (as of the reference year 2020).
+        // Determine the birth year from the PESEL number: the first two digits are the year,
+        // the next two the month (a month value above 20 means a birth year in the 2000s).
+        // Sort ascending by birth year (oldest first) and print each customer's age.
         Console.WriteLine();
         Console.WriteLine("****** Question 2 ******");
         Console.WriteLine("Provided:");
@@ -52,7 +58,10 @@ public class Program
         Console.WriteLine("Marciniak Jerzy 35");
         Console.WriteLine("Antoniewski Michał 32");
 
-        // 3.
+        // Question 3
+        // Find the 3 longest-standing customers, i.e. those whose first order was placed earliest.
+        // Consider only customers who have placed at least one order.
+        // Sort ascending by the date of the first order and print that date (dd.MM.yyyy).
         Console.WriteLine();
         Console.WriteLine("****** Question 3 ******");
         Console.WriteLine("Provided:");
@@ -75,7 +84,9 @@ public class Program
         Console.WriteLine("Antoniewski Michał 22.03.2017");
         Console.WriteLine("Kowalska Aneta 12.03.2018");
 
-        // 4.
+        // Question 4
+        // Find the 5 best-selling products: sum the ordered quantity of each product across all orders.
+        // Sort descending by total quantity; for equal totals, sort ascending by product name.
         Console.WriteLine();
         Console.WriteLine("****** Question 4 ******");
         Console.WriteLine("Provided:");
@@ -100,7 +111,11 @@ public class Program
         Console.WriteLine("Pen 10");
         Console.WriteLine("Monitor 5");
 
-        // 5.
+        // Question 5
+        // For every customer, compute the total amount spent on all their orders
+        // (price × quantity of each ordered product), reduced by the discount of their loyalty card.
+        // Customers without a loyalty card get no discount. Round the result to 2 decimal places.
+        // Sort ascending by last name, then by first name.
         Console.WriteLine();
         Console.WriteLine("****** Question 5 ******");
         Console.WriteLine("Provided:");
